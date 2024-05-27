@@ -97,21 +97,21 @@ int main(void)
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, encoderB);
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, prevA);
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, prevB);
+
+		   while(dutyCycle < 65535)
+		        {
+		            TIM1->CCR1 = dutyCycle;
+		            dutyCycle += 100;
+		            HAL_Delay(1);
+		        }
+		        while(dutyCycle > 0)
+		        {
+		            TIM1->CCR1 = dutyCycle;
+		            dutyCycle -= 100;
+		            HAL_Delay(1);
+		        }
 	  }
 
-	  while(dutyCycle < 65535)
-	  {
-		  TIM1->CCR1 = dutyCycle;
-	      dutyCycle += 100;
-	      HAL_Delay(1);
-	  }
-
-	  while(dutyCycle > 0)
-	  {
-		  TIM2->CCR1 = dutyCycle;
-	      dutyCycle -= 100;
-	      HAL_Delay(1);
-	  }
 
   }
 }
@@ -183,14 +183,16 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
+  __HAL_RCC_TIM1_CLK_ENABLE();
 
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 0);
 
-  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, 0);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 // Read
 
@@ -311,7 +313,7 @@ static void MX_TIM1_Init(void)
 	  sConfigOC.Pulse = 0;
 	  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1)) != HAL_OK)
+	  if ((HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1)) != HAL_OK)
 	  {
 	    Error_Handler();
 	  }
